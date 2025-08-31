@@ -1,22 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Página principal</title>
+  <title>Lista de Presença</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #f0f0f0;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+    }
+    #form-presenca {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Seja bem vindo <span id="colocar-nome"></span>!</h1>
-  <label for="nome">Digite seu nome</label>
-  <input type="text" id="nome">
-  <button id="btn-finalizar">Finalizar</button>
+  <h1>Lista de Presença</h1>
+  <ul id="lista"></ul>
 
-  <script>
-    document.getElementById('btn-finalizar').addEventListener('click', ()=> {
-      const input = document.getElementById('nome')
-      const nomeE = document.getElementById('colocar-nome')
-      nomeE.textContent = input.value
-    })
+  <div id="form-presenca">
+    <input type="text" id="nome" placeholder="Digite seu nome">
+    <button id="btn-add">Confirmar presença</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    // ⚠️ Substitua pelos dados do seu Firebase
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      databaseURL: "https://SEU_PROJETO.firebaseio.com",
+      projectId: "SEU_PROJETO",
+      storageBucket: "SEU_PROJETO.appspot.com",
+      messagingSenderId: "ID",
+      appId: "APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const listaRef = ref(db, "presencas");
+
+    const listaUl = document.getElementById("lista");
+    const input = document.getElementById("nome");
+    const btn = document.getElementById("btn-add");
+    const formPresenca = document.getElementById("form-presenca");
+
+    // Carrega a lista em tempo real
+    onValue(listaRef, (snapshot) => {
+      listaUl.innerHTML = "";
+      snapshot.forEach(child => {
+        const li = document.createElement("li");
+        li.textContent = child.val();
+        listaUl.appendChild(li);
+      });
+    });
+
+    // Adiciona presença
+    btn.addEventListener("click", () => {
+      const nome = input.value.trim();
+      if (nome) {
+        push(listaRef, nome);
+        localStorage.setItem("presencaConfirmada", "true"); // evita repetir
+        formPresenca.style.display = "none"; // esconde o campo
+      }
+    });
+
+    // Se já confirmou antes, não mostra o campo
+    if (localStorage.getItem("presencaConfirmada") === "true") {
+      formPresenca.style.display = "none";
+    }
   </script>
 </body>
 </html>
