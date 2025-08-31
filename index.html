@@ -6,6 +6,17 @@
   <title>Página principal</title>
 </head>
 <body>
-  <h1>Seja bem vindo!</h1>
+  <h1>Seja bem vindo <span id="colocar-nome"></span>!</h1>
+  <label for="nome">Digite seu nome</label>
+  <input type="text" id="nome">
+  <button id="btn-finalizar">Finalizar</button>
+
+  <script>
+    document.getElementById('btn-finalizar').addEventListener('click', ()=> {
+      const input = document.getElementById('nome')
+      const nomeE = document.getElementById('colocar-nome')
+      nomeE.textContent = input.value
+    })
+  </script>
 </body>
 </html>
